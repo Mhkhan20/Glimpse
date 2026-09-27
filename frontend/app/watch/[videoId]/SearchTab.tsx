@@ -67,7 +67,7 @@ function highlight(text: string, query: string) {
   while (idx !== -1) {
     parts.push(text.slice(start, idx));
     parts.push(
-      <mark key={idx} className="bg-yellow-300 dark:bg-yellow-600">
+      <mark key={idx} className="rounded bg-accent/30 text-foreground">
         {text.slice(idx, idx + q.length)}
       </mark>
     );
@@ -101,29 +101,29 @@ export default function SearchTab({ videoId, transcript, seekTo, onGoToVisuals }
           setCurrentIndex(0);
         }}
         placeholder="Search the transcript..."
-        className="rounded-lg border border-zinc-300 px-4 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+        className="rounded-xl border border-border bg-surface px-4 py-2 text-foreground placeholder:text-faint focus:outline-none"
       />
 
       {query.trim() && results.length > 0 && (
-        <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
-          <button onClick={() => goTo(currentIndex - 1)} className="rounded border px-2 py-1 dark:border-zinc-700">
+        <div className="flex items-center gap-3 text-sm text-muted">
+          <button onClick={() => goTo(currentIndex - 1)} className="rounded-lg border border-border bg-surface px-2 py-1">
             Prev
           </button>
           <span>
             {currentIndex + 1} of {results.length}
           </span>
-          <button onClick={() => goTo(currentIndex + 1)} className="rounded border px-2 py-1 dark:border-zinc-700">
+          <button onClick={() => goTo(currentIndex + 1)} className="rounded-lg border border-border bg-surface px-2 py-1">
             Next
           </button>
         </div>
       )}
 
       {transcript.length === 0 && (
-        <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="flex flex-col gap-2 text-sm text-muted">
           <p>This video doesn&apos;t have a transcript, so there&apos;s nothing to search here.</p>
           <button
             onClick={onGoToVisuals}
-            className="w-fit rounded-lg border border-zinc-300 px-4 py-2 dark:border-zinc-700"
+            className="w-fit rounded-xl border border-border bg-surface px-4 py-2"
           >
             Go to Visuals
           </button>
@@ -131,29 +131,29 @@ export default function SearchTab({ videoId, transcript, seekTo, onGoToVisuals }
       )}
 
       {transcript.length > 0 && query.trim() && results.length === 0 && (
-        <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="flex flex-col gap-2 text-sm text-muted">
           <p>Not found in what was said. Search what&apos;s shown on screen?</p>
           <button
             onClick={onGoToVisuals}
-            className="w-fit rounded-lg border border-zinc-300 px-4 py-2 dark:border-zinc-700"
+            className="w-fit rounded-xl border border-border bg-surface px-4 py-2"
           >
             Go to Visuals
           </button>
         </div>
       )}
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(161,161,170,0.4)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-400/40 hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400/70">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(154,154,158,0.4)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted/40 hover:[&::-webkit-scrollbar-thumb]:bg-muted/70">
         {results.map((r, i) => (
           <div
             key={i}
-            className={`flex flex-col gap-1 rounded-lg border p-3 ${
-              i === currentIndex ? "border-black dark:border-white" : "border-zinc-200 dark:border-zinc-800"
+            className={`flex flex-col gap-1 rounded-xl border p-3 transition-colors ${
+              i === currentIndex ? "border-accent bg-accent/10" : "border-border bg-surface"
             }`}
           >
             <div className="flex items-center gap-2">
               <button
                 onClick={() => goTo(i)}
-                className="font-mono text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                className="rounded-md bg-accent/15 px-2 py-0.5 font-mono text-sm font-medium text-accent"
               >
                 {formatTime(r.start)}
               </button>
@@ -161,12 +161,12 @@ export default function SearchTab({ videoId, transcript, seekTo, onGoToVisuals }
                 href={`https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(r.start)}s`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-zinc-400 hover:underline"
+                className="text-xs text-faint hover:underline"
               >
                 Open in YouTube
               </a>
             </div>
-            <p className="text-sm">{highlight(r.text, query)}</p>
+            <p className="text-sm text-foreground">{highlight(r.text, query)}</p>
           </div>
         ))}
       </div>

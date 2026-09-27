@@ -62,7 +62,7 @@ export default function YouTubePlayer({ videoId, vertical, onReady }: Props) {
   }, [videoId]);
 
   return (
-    <div className={`${vertical ? "aspect-[9/16]" : "aspect-video"} h-full max-h-[90vh] w-auto max-w-full overflow-hidden rounded-lg`}>
+    <div className={`${vertical ? "aspect-[9/16]" : "aspect-video"} h-full max-h-[90vh] w-auto max-w-full overflow-hidden rounded-xl border border-border shadow-[0_0_40px_-10px_rgba(79,168,154,0.25)]`}>
       <div ref={containerRef} className="h-full w-full" />
     </div>
   );

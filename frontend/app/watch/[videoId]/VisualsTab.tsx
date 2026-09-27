@@ -21,22 +21,21 @@ type Props = {
   seekTo: ((seconds: number) => void) | null;
 };
 
-
 function highlightWords(text: string, words: string[]) {
-    if (words.length === 0) return text;
-    const escaped = words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-    const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
-    const segments = text.split(pattern);
-    return segments.map((segment, i) =>
-      words.some((w) => segment.toLowerCase() === w.toLowerCase()) ? (
-        <mark key={i} className="bg-yellow-300 dark:bg-yellow-600">
-          {segment}
-        </mark>
-      ) : (
-        segment
-      )
-    );
-  }
+  if (words.length === 0) return text;
+  const escaped = words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
+  const segments = text.split(pattern);
+  return segments.map((segment, i) =>
+    words.some((w) => segment.toLowerCase() === w.toLowerCase()) ? (
+      <mark key={i} className="rounded bg-accent/30 text-foreground">
+        {segment}
+      </mark>
+    ) : (
+      segment
+    )
+  );
+}
 
 function formatTime(seconds: number): string {
   const total = Math.floor(seconds);
@@ -47,8 +46,6 @@ function formatTime(seconds: number): string {
   const ss = String(s).padStart(2, "0");
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
-
-
 
 export default function VisualsTab({ videoId, seekTo }: Props) {
   const [status, setStatus] = useState<ScanStatus>({ status: "not_started", done: 0, total: 0 });
@@ -95,28 +92,43 @@ export default function VisualsTab({ videoId, seekTo }: Props) {
   return (
     <div className="flex h-full flex-col gap-4">
       {status.status === "not_started" && (
-        <button
-          onClick={startScan}
-          className="w-fit rounded-lg bg-black px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-black"
-        >
-          Scan visuals
-        </button>
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/15 text-accent">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">Scan what&#39;s shown on screen</p>
+            <p className="text-xs text-muted">
+              We&#39;ll pull frames from the video and describe people, objects, charts, and on-screen text. Runs
+              once, then it&#39;s cached.
+            </p>
+          </div>
+          <button
+            onClick={startScan}
+            className="w-fit rounded-xl bg-accent px-4 py-2 text-sm font-medium text-background"
+          >
+            Scan visuals
+          </button>
+        </div>
       )}
 
       {status.status === "running" && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-5 w-5 flex-shrink-0 animate-spin rounded-full border-2 border-zinc-300 border-t-black dark:border-zinc-700 dark:border-t-white" />
-            <p className="text-sm text-zinc-500">
+            <div className="h-5 w-5 flex-shrink-0 animate-spin rounded-full border-2 border-border border-t-accent" />
+            <p className="text-sm text-muted">
               {status.total
                 ? `Scanning video... ${status.done} / ${status.total} frames processed`
                 : "Downloading video and extracting frames..."}
             </p>
           </div>
           {status.total > 0 && (
-            <div className="h-2 w-full overflow-hidden rounded bg-zinc-200 dark:bg-zinc-800">
+            <div className="h-2 w-full overflow-hidden rounded bg-surface-2">
               <div
-                className="h-full bg-black transition-all dark:bg-white"
+                className="h-full bg-accent transition-all"
                 style={{ width: `${(status.done / status.total) * 100}%` }}
               />
             </div>
@@ -125,7 +137,7 @@ export default function VisualsTab({ videoId, seekTo }: Props) {
       )}
 
       {status.status === "error" && (
-        <p className="text-sm text-red-500">Scan failed: {status.error}</p>
+        <p className="text-sm text-red-400">Scan failed: {status.error}</p>
       )}
 
       {status.status === "done" && (
@@ -135,31 +147,31 @@ export default function VisualsTab({ videoId, seekTo }: Props) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search what's shown on screen..."
-            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="rounded-xl border border-border bg-surface px-4 py-2 text-sm text-foreground placeholder:text-faint focus:outline-none"
           />
-          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(161,161,170,0.4)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-400/40 hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400/70">
+          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(154,154,158,0.4)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted/40 hover:[&::-webkit-scrollbar-thumb]:bg-muted/70">
             {filtered.map((f, i) => (
               <button
                 key={i}
                 onClick={() => seekTo?.(f.timestamp)}
-                className="flex gap-3 rounded-lg border border-zinc-200 p-2 text-left hover:border-black dark:border-zinc-800 dark:hover:border-white"
+                className="flex gap-3 rounded-xl border border-border bg-surface p-2 text-left transition-colors hover:border-accent"
               >
                 <img
                   src={`http://localhost:8000/data/${videoId}/frames/${f.file}`}
                   alt=""
-                  className="h-16 w-28 flex-shrink-0 rounded object-cover"
+                  className="h-16 w-28 flex-shrink-0 rounded-lg object-cover"
                 />
-                             <div className="flex flex-col gap-1">
-                  <span className="font-mono text-sm font-medium text-blue-600 dark:text-blue-400">
+                <div className="flex flex-col gap-1">
+                  <span className="font-mono text-sm font-medium text-accent">
                     {formatTime(f.timestamp)}
                   </span>
-                  <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                  <span className="text-xs text-muted">
                     {highlightWords(f.description, queryWords)}
                   </span>
                 </div>
               </button>
             ))}
-            {filtered.length === 0 && <p className="text-sm text-zinc-500">No matching frames found.</p>}
+            {filtered.length === 0 && <p className="text-sm text-muted">No matching frames found.</p>}
           </div>
         </>
       )}
