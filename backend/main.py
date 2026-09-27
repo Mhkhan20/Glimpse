@@ -103,6 +103,10 @@ def build_transcript_text(transcript: list[dict], question: str) -> str:
     return "\n".join(f"[{format_timestamp(line['start'])}] {line['text']}" for line in lines)
 
 
+def build_frames_text(frames: list[dict]) -> str:
+    return "\n".join(f"[{format_timestamp(f['timestamp'])}] {f['description']}" for f in frames)
+
+
 @app.post("/ask")
 def ask(req: AskRequest):
     transcript_path = DATA_DIR / req.video_id / "transcript.json"
@@ -110,24 +114,34 @@ def ask(req: AskRequest):
         raise HTTPException(status_code=404, detail="Analyze this video first.")
 
     transcript = json.loads(transcript_path.read_text(encoding="utf-8"))
-    if not transcript:
+
+    frames_path = DATA_DIR / req.video_id / "frames.json"
+    frames = json.loads(frames_path.read_text(encoding="utf-8")) if frames_path.exists() else []
+
+    if not transcript and not frames:
         return {
-            "answer": "This video doesn't have a transcript, so I can't answer questions about what was said. Try the Visuals tab to see what's shown on screen instead."
+            "answer": "This video doesn't have a transcript, and visuals haven't been scanned yet. Try the Visuals tab to scan what's shown on screen, then ask again."
         }
 
-    transcript_text = build_transcript_text(transcript, req.question)
+    transcript_text = build_transcript_text(transcript, req.question) if transcript else "(No spoken transcript available for this video.)"
+    frames_text = build_frames_text(frames) if frames else "(Visuals haven't been scanned for this video yet.)"
 
     history_text = "\n".join(f"{turn.role}: {turn.text}" for turn in req.history[-6:])
 
-    prompt = f"""You are answering questions about a YouTube video using only its transcript below.
-Always cite timestamps for claims, formatted exactly like [mm:ss] or [h:mm:ss], matching the transcript's own timestamps.
+    prompt = f"""You are answering questions about a YouTube video using the transcript and visual descriptions below.
+Always cite timestamps for claims, formatted exactly like [mm:ss] or [h:mm:ss], matching the timestamps given.
 Cite exactly ONE timestamp per bracket. Never combine two timestamps in one bracket and never write a range like [1:23-1:26]. If a claim is supported by multiple moments, cite each one in its own bracket, like [1:23] [1:26].
 Do not use markdown formatting such as ** for bold or * for bullets — reply in plain text only.
-If the question asks for YOUR opinion, judgment, or evaluation (e.g. "do you think...", "is this a good...", "would you recommend..."), you must form and state your own view — do not say the transcript doesn't contain an opinion, since the transcript is source material, not something being asked for its opinion. Start with a direct stance like "In my view, ..." or "Yes/No, ...", then back it up with evidence and timestamps from the transcript.
-Only say the video doesn't answer the question when it's a factual question the transcript genuinely has no information about — not for opinion questions, which you should always answer yourself using the transcript as evidence.
+The transcript covers what was SAID out loud. The visual descriptions cover what was SHOWN on screen (people, objects, on-screen text). Use whichever source actually answers the question — many things are shown but never said, or said but never shown.
+If the question asks for YOUR opinion, judgment, or evaluation (e.g. "do you think...", "is this a good...", "would you recommend..."), you must form and state your own view — do not say the source doesn't contain an opinion, since it's material for you to evaluate, not something being asked for its own opinion. Start with a direct stance like "In my view, ..." or "Yes/No, ...", then back it up with evidence and timestamps.
+Only say the video doesn't answer the question when neither the transcript nor the visual descriptions have relevant information — not for opinion questions, which you should always answer yourself using the material as evidence.
+If the visual descriptions say scanning hasn't happened yet, and the question seems to be about something visual (colors, objects, on-screen text, what something looks like), tell the user plainly that visuals haven't been scanned for this video yet and suggest they click "Scan visuals" on the Visuals tab, instead of just saying the video doesn't answer the question.
 
-Transcript:
+Transcript (what was said):
 {transcript_text}
+
+Visual descriptions (what was shown on screen):
+{frames_text}
 
 Recent conversation:
 {history_text}
