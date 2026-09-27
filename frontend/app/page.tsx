@@ -46,7 +46,7 @@ export default function Home() {
           <h1 className="font-heading text-6xl font-bold tracking-tight text-foreground">
             Glimpse
           </h1>
-          <p className="text-lg text-muted">The Ctrl+F you wish YouTube had.</p>
+          <p className="text-lg text-muted">Every word. Every frame. Searchable.</p>
         </div>
 
         <div className="flex w-full gap-2">
