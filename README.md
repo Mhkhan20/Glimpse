@@ -4,6 +4,14 @@
 
 Built in 24 hours. Runs entirely locally, no cloud deploy.
 
+<p align="center">
+  <img src="screenshots/home.png" alt="Glimpse home page" width="48%">
+  <img src="screenshots/results.png" alt="Glimpse results page with Ask tab" width="48%">
+</p>
+<p align="center">
+  <img src="screenshots/search.png" alt="Glimpse Search tab finding a matching transcript line" width="70%">
+</p>
+
 ## Features
 
 - **Search** — case-insensitive search across the transcript, including phrases split across caption lines. Every result is a clickable timestamp that seeks and plays the video. No AI involved — instant and free.
