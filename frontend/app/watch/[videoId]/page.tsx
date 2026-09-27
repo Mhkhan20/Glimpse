@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import YouTubePlayer from "./YouTubePlayer";
 import SearchTab from "./SearchTab";
+import AskTab from "./AskTab";
 
 type TranscriptLine = {
   text: string;
@@ -72,9 +73,7 @@ export default function WatchPage() {
                 onGoToVisuals={() => setActiveTab("visuals")}
               />
             )}
-            {activeTab === "ask" && (
-              <p className="text-sm text-zinc-500">Ask coming in the next checkpoint.</p>
-            )}
+            {activeTab === "ask" && <AskTab videoId={videoId} seekTo={seekTo} />}
             {activeTab === "visuals" && (
               <p className="text-sm text-zinc-500">Visuals coming in a later checkpoint.</p>
             )}
