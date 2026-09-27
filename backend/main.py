@@ -1,16 +1,20 @@
 import json
 import os
+import threading
 from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from google import genai
 from pydantic import BaseModel
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound, VideoUnavailable
 
 from video_utils import extract_video_id
+from visual_pipeline import extract_and_dedupe
+from visual_descriptions import describe_all_frames
 
 load_dotenv()
 
@@ -24,6 +28,8 @@ app.add_middleware(
 )
 
 DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
 gemini_client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
 
@@ -130,3 +136,44 @@ Question: {req.question}
     )
 
     return {"answer": response.text}
+
+
+scan_progress: dict[str, dict] = {}
+
+
+def run_scan(video_id: str):
+    scan_progress[video_id] = {"status": "running", "done": 0, "total": 0}
+    try:
+        meta = extract_and_dedupe(video_id)
+        scan_progress[video_id]["total"] = len(meta)
+
+        def on_progress(done, total):
+            scan_progress[video_id].update({"done": done, "total": total})
+
+        frames = describe_all_frames(video_id, on_progress=on_progress)
+        scan_progress[video_id] = {"status": "done", "done": len(frames), "total": len(frames)}
+    except Exception as e:
+        scan_progress[video_id] = {"status": "error", "error": str(e)}
+
+
+@app.post("/scan/{video_id}")
+def start_scan(video_id: str):
+    frames_path = DATA_DIR / video_id / "frames.json"
+    if frames_path.exists():
+        return {"status": "done"}
+
+    if scan_progress.get(video_id, {}).get("status") == "running":
+        return {"status": "running"}
+
+    threading.Thread(target=run_scan, args=(video_id,), daemon=True).start()
+    return {"status": "started"}
+
+
+@app.get("/scan/{video_id}/status")
+def scan_status(video_id: str):
+    frames_path = DATA_DIR / video_id / "frames.json"
+    if frames_path.exists():
+        frames = json.loads(frames_path.read_text(encoding="utf-8"))
+        return {"status": "done", "done": len(frames), "total": len(frames), "frames": frames}
+
+    return scan_progress.get(video_id, {"status": "not_started", "done": 0, "total": 0})

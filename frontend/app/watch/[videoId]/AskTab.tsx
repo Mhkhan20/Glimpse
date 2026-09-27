@@ -87,7 +87,7 @@ export default function AskTab({ videoId, seekTo }: Props) {
 
   return (
     <div className="flex h-full flex-col gap-3">
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(161,161,170,0.4)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-400/40 hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400/70">
         {messages.map((m, i) => (
           <div
             key={i}

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import YouTubePlayer from "./YouTubePlayer";
 import SearchTab from "./SearchTab";
 import AskTab from "./AskTab";
+import VisualsTab from "./VisualsTab";
 
 type TranscriptLine = {
   text: string;
@@ -39,11 +40,11 @@ export default function WatchPage() {
   }, [videoId]);
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6 md:flex-row">
+    <div className="flex h-screen flex-col gap-6 overflow-hidden p-6 md:flex-row">
       <div className="w-full md:w-2/3">
         <YouTubePlayer videoId={videoId} onReady={(seek) => setSeekTo(() => seek)} />
       </div>
-      <div className="flex w-full flex-col gap-4 md:w-1/3">
+      <div className="flex min-h-0 w-full flex-1 flex-col gap-4 md:w-1/3">
         {error && <p className="text-red-500">{error}</p>}
         {!error && !transcript && <p>Loading transcript...</p>}
 
@@ -65,18 +66,20 @@ export default function WatchPage() {
               ))}
             </div>
 
-            {activeTab === "search" && (
+            <div className={`min-h-0 flex-1 ${activeTab === "search" ? "flex flex-col" : "hidden"}`}>
               <SearchTab
                 videoId={videoId}
                 transcript={transcript}
                 seekTo={seekTo}
                 onGoToVisuals={() => setActiveTab("visuals")}
               />
-            )}
-            {activeTab === "ask" && <AskTab videoId={videoId} seekTo={seekTo} />}
-            {activeTab === "visuals" && (
-              <p className="text-sm text-zinc-500">Visuals coming in a later checkpoint.</p>
-            )}
+            </div>
+            <div className={`min-h-0 flex-1 ${activeTab === "ask" ? "flex flex-col" : "hidden"}`}>
+              <AskTab videoId={videoId} seekTo={seekTo} />
+            </div>
+            <div className={`min-h-0 flex-1 ${activeTab === "visuals" ? "flex flex-col" : "hidden"}`}>
+              <VisualsTab videoId={videoId} seekTo={seekTo} />
+            </div>
           </>
         )}
       </div>
