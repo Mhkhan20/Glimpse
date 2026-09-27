@@ -142,6 +142,25 @@ export default function SearchTab({ videoId, transcript, seekTo, onGoToVisuals }
         </div>
       )}
 
+      {transcript.length > 0 && !query.trim() && (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 text-center">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-accent/15 text-accent">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </div>
+          <p className="text-sm font-medium text-foreground">Ctrl+F for what was said</p>
+          <div className="flex flex-wrap justify-center gap-1.5">
+            {["Names", "Topics", "Key phrases"].map((tag) => (
+              <span key={tag} className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] text-muted">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(154,154,158,0.4)_transparent] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted/40 hover:[&::-webkit-scrollbar-thumb]:bg-muted/70">
         {results.map((r, i) => (
           <div
