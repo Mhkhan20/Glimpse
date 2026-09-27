@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import YouTubePlayer from "./YouTubePlayer";
 import SearchTab from "./SearchTab";
 import AskTab from "./AskTab";
@@ -17,6 +17,7 @@ type Tab = "search" | "ask" | "visuals";
 
 export default function WatchPage() {
   const { videoId } = useParams<{ videoId: string }>();
+  const isVertical = useSearchParams().get("vertical") === "1";
   const [transcript, setTranscript] = useState<TranscriptLine[] | null>(null);
   const [error, setError] = useState("");
   const [seekTo, setSeekTo] = useState<((seconds: number) => void) | null>(null);
@@ -41,8 +42,8 @@ export default function WatchPage() {
 
   return (
     <div className="flex h-screen flex-col gap-6 overflow-hidden p-6 md:flex-row">
-      <div className="w-full md:w-2/3">
-        <YouTubePlayer videoId={videoId} onReady={(seek) => setSeekTo(() => seek)} />
+            <div className="flex w-full items-center justify-center md:w-2/3">
+        <YouTubePlayer videoId={videoId} vertical={isVertical} onReady={(seek) => setSeekTo(() => seek)} />
       </div>
       <div className="flex min-h-0 w-full flex-1 flex-col gap-4 md:w-1/3">
         {error && <p className="text-red-500">{error}</p>}

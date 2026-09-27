@@ -26,10 +26,11 @@ function loadYouTubeApi(): Promise<void> {
 
 type Props = {
   videoId: string;
+  vertical?: boolean;
   onReady: (seekTo: (seconds: number) => void) => void;
 };
 
-export default function YouTubePlayer({ videoId, onReady }: Props) {
+export default function YouTubePlayer({ videoId, vertical, onReady }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
 
@@ -40,6 +41,8 @@ export default function YouTubePlayer({ videoId, onReady }: Props) {
       if (cancelled || !containerRef.current) return;
       playerRef.current = new window.YT.Player(containerRef.current, {
         videoId,
+        width: "100%",
+        height: "100%",
         events: {
           onReady: () => {
             onReady((seconds: number) => {
@@ -59,9 +62,8 @@ export default function YouTubePlayer({ videoId, onReady }: Props) {
   }, [videoId]);
 
   return (
-    <div
-      className="aspect-video w-full overflow-hidden rounded-lg"
-      ref={containerRef}
-    />
+    <div className={`${vertical ? "aspect-[9/16]" : "aspect-video"} h-full max-h-[90vh] w-auto max-w-full overflow-hidden rounded-lg`}>
+      <div ref={containerRef} className="h-full w-full" />
+    </div>
   );
 }

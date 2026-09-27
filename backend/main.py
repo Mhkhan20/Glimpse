@@ -70,7 +70,7 @@ def analyze(req: AnalyzeRequest):
         fetched = YouTubeTranscriptApi().fetch(video_id)
         transcript = fetched.to_raw_data()
     except (TranscriptsDisabled, NoTranscriptFound, VideoUnavailable):
-        raise HTTPException(status_code=404, detail="No transcript is available for this video.")
+        transcript = []
 
     video_dir.mkdir(parents=True, exist_ok=True)
     transcript_path.write_text(json.dumps(transcript, indent=2), encoding="utf-8")
@@ -110,6 +110,11 @@ def ask(req: AskRequest):
         raise HTTPException(status_code=404, detail="Analyze this video first.")
 
     transcript = json.loads(transcript_path.read_text(encoding="utf-8"))
+    if not transcript:
+        return {
+            "answer": "This video doesn't have a transcript, so I can't answer questions about what was said. Try the Visuals tab to see what's shown on screen instead."
+        }
+
     transcript_text = build_transcript_text(transcript, req.question)
 
     history_text = "\n".join(f"{turn.role}: {turn.text}" for turn in req.history[-6:])

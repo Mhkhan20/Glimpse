@@ -118,7 +118,19 @@ export default function SearchTab({ videoId, transcript, seekTo, onGoToVisuals }
         </div>
       )}
 
-      {query.trim() && results.length === 0 && (
+      {transcript.length === 0 && (
+        <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+          <p>This video doesn&apos;t have a transcript, so there&apos;s nothing to search here.</p>
+          <button
+            onClick={onGoToVisuals}
+            className="w-fit rounded-lg border border-zinc-300 px-4 py-2 dark:border-zinc-700"
+          >
+            Go to Visuals
+          </button>
+        </div>
+      )}
+
+      {transcript.length > 0 && query.trim() && results.length === 0 && (
         <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
           <p>Not found in what was said. Search what&apos;s shown on screen?</p>
           <button

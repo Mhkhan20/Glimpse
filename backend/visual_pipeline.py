@@ -22,7 +22,7 @@ def download_video(video_id: str) -> tuple[Path, float]:
         return existing[0], info["duration"]
 
     ydl_opts = {
-        "format": "bestvideo[height<=360]/bestvideo/best[height<=360]/best",
+        "format": "bestvideo[height<=360]/bestvideo/best[height<=480]/best",
         "outtmpl": str(video_dir / "video.%(ext)s"),
         "quiet": True,
     }

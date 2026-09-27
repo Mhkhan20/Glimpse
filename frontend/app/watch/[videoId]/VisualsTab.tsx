@@ -104,16 +104,23 @@ export default function VisualsTab({ videoId, seekTo }: Props) {
       )}
 
       {status.status === "running" && (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-zinc-500">
-            Scanning... {status.done} / {status.total || "?"}
-          </p>
-          <div className="h-2 w-full overflow-hidden rounded bg-zinc-200 dark:bg-zinc-800">
-            <div
-              className="h-full bg-black dark:bg-white"
-              style={{ width: status.total ? `${(status.done / status.total) * 100}%` : "10%" }}
-            />
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-5 w-5 flex-shrink-0 animate-spin rounded-full border-2 border-zinc-300 border-t-black dark:border-zinc-700 dark:border-t-white" />
+            <p className="text-sm text-zinc-500">
+              {status.total
+                ? `Scanning video... ${status.done} / ${status.total} frames processed`
+                : "Downloading video and extracting frames..."}
+            </p>
           </div>
+          {status.total > 0 && (
+            <div className="h-2 w-full overflow-hidden rounded bg-zinc-200 dark:bg-zinc-800">
+              <div
+                className="h-full bg-black transition-all dark:bg-white"
+                style={{ width: `${(status.done / status.total) * 100}%` }}
+              />
+            </div>
+          )}
         </div>
       )}
 

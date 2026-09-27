@@ -24,7 +24,8 @@ export default function Home() {
         setLoading(false);
         return;
       }
-      router.push(`/watch/${data.video_id}`);
+      const isShort = /\/shorts\//.test(url);
+      router.push(`/watch/${data.video_id}${isShort ? "?vertical=1" : ""}`);
     } catch {
       setError("Could not reach the backend. Is it running?");
       setLoading(false);
